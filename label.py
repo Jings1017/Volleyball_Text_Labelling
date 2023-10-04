@@ -1,11 +1,12 @@
 import sys
 import os
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QListView, QHBoxLayout, QWidget, QPushButton, QFileDialog, QLabel, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QListView, QHBoxLayout, QWidget, QPushButton, QFileDialog, QLabel, QMessageBox, QComboBox
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtCore import QUrl, QStringListModel
 from PyQt5.QtGui import QFont
+import csv
 
 
 class VideoPlayerApp(QMainWindow):
@@ -61,7 +62,7 @@ class VideoPlayerApp(QMainWindow):
         self.video_layout = QVBoxLayout()
         self.layout.addLayout(self.video_layout)
 
-        self.video_title_label = QLabel('Video Title')
+        self.video_title_label = QLabel('')
         self.video_title_label.setFont(QFont('Arial', 20))
         self.video_title_label.setAlignment(QtCore.Qt.AlignCenter)
         self.video_layout.addWidget(self.video_title_label)
@@ -77,10 +78,69 @@ class VideoPlayerApp(QMainWindow):
         self.play_button.clicked.connect(self.play_video)
         self.video_layout.addWidget(self.play_button)
 
+        self.anno_layout = QHBoxLayout()
+        self.video_layout.addLayout(self.anno_layout)
+
+        self.annotation_label = QLabel('Current label : ')
+        self.annotation_label.setFont(QFont('Arial', 14))
+        self.annotation_label.setAlignment(QtCore.Qt.AlignLeft)
+        self.anno_layout.addWidget(self.annotation_label)
+
+        self.annotation_text = QLabel('')
+        self.annotation_text.setFont(QFont('Arial', 14))
+        self.annotation_text.setAlignment(QtCore.Qt.AlignLeft)
+        self.anno_layout.addWidget(self.annotation_text)
+
+        self.labelling_layout = QHBoxLayout()
+        self.video_layout.addLayout(self.labelling_layout)
+
+        self.setting_position_combobox = QComboBox()
+        self.setting_position_combobox.setFixedSize(150, 50)
+        self.setting_position_combobox.addItems(
+            ['position 1', 'position 2', 'position 3', 'position 4', 'position 5', 'position 6'])
+        self.labelling_layout.addWidget(self.setting_position_combobox)
+        self.setting_position_combobox.activated.connect(
+            self.update_annotation_text)
+
+        self.attacker_combobox = QComboBox()
+        self.attacker_combobox.setFixedSize(150, 50)
+        self.attacker_combobox.addItems(
+            ['outside hitter', 'opposite', 'middle blocker', 'setter', 'libero'])
+        self.labelling_layout.addWidget(self.attacker_combobox)
+        self.attacker_combobox.activated.connect(
+            self.update_annotation_text)
+
+        self.attack_position_combobox = QComboBox()
+        self.attack_position_combobox.setFixedSize(150, 50)
+        self.attack_position_combobox.addItems(
+            ['position 1', 'position 2', 'position 3', 'position 4', 'position 5', 'position 6'])
+        self.labelling_layout.addWidget(self.attack_position_combobox)
+        self.attack_position_combobox.activated.connect(
+            self.update_annotation_text)
+
+        self.point_combobox = QComboBox()
+        self.point_combobox.setFixedSize(150, 50)
+        self.point_combobox.addItems(
+            ['gets', 'loses'])
+        self.labelling_layout.addWidget(self.point_combobox)
+        self.point_combobox.activated.connect(
+            self.update_annotation_text)
+
+        self.attack_method_combobox = QComboBox()
+        self.attack_method_combobox.setFixedSize(150, 50)
+        self.attack_method_combobox.addItems(
+            ['spike', 'A quick', 'B quick', 'C quick', 'D quick', 'back-row spike'])
+        self.labelling_layout.addWidget(self.attack_method_combobox)
+        self.attack_method_combobox.activated.connect(
+            self.update_annotation_text)
+
         self.media_content = None
         self.current_video_path = None
         self.video_paths = []
         self.current_video_index = 0
+        self.save_csv_folder = ''
+        self.current_label = ''
+        self.out_path = 'label.csv'
 
     def play_video(self):
         if self.media_player.state() == QMediaPlayer.PlayingState:
@@ -109,7 +169,6 @@ class VideoPlayerApp(QMainWindow):
             self, "Open Folder", "", options=options)
 
         if folder_path:
-            # Implement logic to load multiple videos from the selected folder
             video_files = [f for f in os.listdir(
                 folder_path) if f.endswith(('.mov', '.mp4', '.avi'))]
             self.video_paths = [os.path.join(folder_path, video_file)
@@ -130,8 +189,11 @@ class VideoPlayerApp(QMainWindow):
             self, "Select Save Location", "", options=options)
         print(save_folder)
         if save_folder:
-            # Implement logic to save files to the selected location
-            pass
+            self.save_csv_folder = save_folder
+            self.out_path = os.path.join(self.save_csv_folder, 'label.csv')
+            with open(self.out_path, 'w', newline='') as csvfile:
+                self.writer = csv.writer(csvfile)
+                self.writer.writerow(['Video_name', 'Description'])
 
     def load_next_video(self):
         if len(self.video_paths) > 1 and self.current_video_index < len(self.video_paths)-1:
@@ -151,7 +213,6 @@ class VideoPlayerApp(QMainWindow):
             msg_box.exec()
 
     def load_prev_video(self):
-        print(self.current_video_index)
         if self.current_video_index == 0:
             msg_box = QMessageBox()
             msg_box.setWindowTitle('Warning')
@@ -179,6 +240,40 @@ class VideoPlayerApp(QMainWindow):
         video_names = self.video_list_model.stringList()
         video_names.append(video_name)
         self.video_list_model.setStringList(video_names)
+
+    def update_annotation_text(self):
+        self.current_label = 'The setter sets the ball to {}, and the {} from {} {} a point by {}.'.format(self.setting_position_combobox.currentText(
+        ), self.attacker_combobox.currentText(), self.attack_position_combobox.currentText(), self.point_combobox.currentText(), self.attack_method_combobox.currentText())
+        self.annotation_text.setText(self.current_label)
+        print(self.current_label)
+
+        new_data = {
+            'Video_name': self.current_video_path,
+            'Description': self.current_label
+        }
+
+        with open(self.out_path, mode='r', newline='') as file:
+            reader = csv.DictReader(file)
+            rows = list(reader)
+
+        video_name_to_find = new_data["Video_name"]
+        video_name_exists = False
+
+        for row in rows:
+            if row["Video_name"] == video_name_to_find:
+                row["Description"] = new_data["Description"]
+                video_name_exists = True
+                break
+
+        if not video_name_exists:
+            rows.append(new_data)
+
+        with open(self.out_path, mode='w', newline='') as file:
+            fieldnames = ["Video_name", "Description"]
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+
+            writer.writeheader()
+            writer.writerows(rows)
 
 
 if __name__ == "__main__":
