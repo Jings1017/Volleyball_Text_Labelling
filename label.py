@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QListView, Q
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtCore import QUrl, QStringListModel
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QColor, QPalette
 import csv
 
 
@@ -14,7 +14,7 @@ class VolleyballLabel(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Volleyball Text Labelling")
-        self.setGeometry(100, 100, 1500, 800)
+        self.setGeometry(100, 100, 1700, 800)
 
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
@@ -129,7 +129,7 @@ class VolleyballLabel(QMainWindow):
         self.video_layout.addLayout(self.labelling_layout)
 
         self.setting_position_combobox = QComboBox()
-        self.setting_position_combobox.setFixedSize(150, 50)
+        self.setting_position_combobox.setFixedSize(250, 50)
         self.setting_position_combobox.addItems(
             ['position 1', 'position 2', 'position 3', 'position 4', 'position 5', 'position 6',
              'position 1 and position 2', 'position 2 and position 3', 'position 3 and position 4',
@@ -147,7 +147,7 @@ class VolleyballLabel(QMainWindow):
             self.update_annotation_text)
 
         self.attack_position_combobox = QComboBox()
-        self.attack_position_combobox.setFixedSize(150, 50)
+        self.attack_position_combobox.setFixedSize(250, 50)
         self.attack_position_combobox.addItems(
             ['position 1', 'position 2', 'position 3', 'position 4', 'position 5', 'position 6',
              'position 1 and position 2', 'position 2 and position 3', 'position 3 and position 4',
@@ -189,7 +189,40 @@ class VolleyballLabel(QMainWindow):
             self.play_button.setText("Pause")
 
     def save_current_data(self):
-        pass
+
+        blue_color = QColor(0, 0, 255)
+        palette = QPalette()
+        palette.setColor(QPalette.WindowText, blue_color)
+        self.annotation_text.setPalette(palette)
+
+        new_data = {
+            'Video_name': os.path.basename(self.current_video_path),
+            'Description': self.current_label
+        }
+
+        with open(self.out_path, mode='r', newline='') as file:
+            reader = csv.DictReader(file)
+            rows = list(reader)
+
+        video_name_to_find = new_data["Video_name"]
+        video_name_exists = False
+
+        for row in rows:
+            if row["Video_name"] == video_name_to_find:
+                row["Description"] = new_data["Description"]
+                video_name_exists = True
+                break
+
+        if not video_name_exists:
+            rows.append(new_data)
+
+        with open(self.out_path, mode='w', newline='') as file:
+            fieldnames = ["Video_name", "Description"]
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+
+            writer.writeheader()
+            for row in rows:
+                writer.writerow(row)
 
     def load_single_video(self):
         options = QFileDialog.Options()
@@ -238,6 +271,11 @@ class VolleyballLabel(QMainWindow):
             self.out_path = os.path.join(self.save_csv_folder, 'label.csv')
 
     def load_next_video(self):
+        black_color = QColor(0, 0, 0)
+        palette = QPalette()
+        palette.setColor(QPalette.WindowText, black_color)
+        self.annotation_text.setPalette(palette)
+
         if len(self.video_paths) > 1 and self.current_video_index < len(self.video_paths)-1:
             self.current_video_index += 1
             self.current_video_path = self.video_paths[self.current_video_index]
@@ -255,6 +293,11 @@ class VolleyballLabel(QMainWindow):
             msg_box.exec()
 
     def load_prev_video(self):
+        black_color = QColor(0, 0, 0)
+        palette = QPalette()
+        palette.setColor(QPalette.WindowText, black_color)
+        self.annotation_text.setPalette(palette)
+
         if self.current_video_index == 0:
             msg_box = QMessageBox()
             msg_box.setWindowTitle('Warning')
@@ -284,38 +327,21 @@ class VolleyballLabel(QMainWindow):
         self.video_list_model.setStringList(video_names)
 
     def update_annotation_text(self):
-        self.current_label = 'The setter sets the ball to {}, and the {} from {} {} a point by {}.'.format(self.setting_position_combobox.currentText(
-        ), self.attacker_combobox.currentText(), self.attack_position_combobox.currentText(), self.point_combobox.currentText(), self.attack_method_combobox.currentText())
+        text = ''
+        if 'and' in self.setting_position_combobox.currentText():
+            text = 'The setter sets the ball between {},'.format(
+                self.setting_position_combobox.currentText())
+        else:
+            text = 'The setter sets the ball to {},'.format(
+                self.setting_position_combobox.currentText())
+        if 'and' in self.attack_position_combobox.currentText():
+            text += 'and the {} between {} {} a point by {}.'.format(self.attacker_combobox.currentText(
+            ), self.attack_position_combobox.currentText(), self.point_combobox.currentText(), self.attack_method_combobox.currentText())
+        else:
+            text += 'and the {} from {} {} a point by {}.'.format(self.attacker_combobox.currentText(
+            ), self.attack_position_combobox.currentText(), self.point_combobox.currentText(), self.attack_method_combobox.currentText())
+        self.current_label = text
         self.annotation_text.setText(self.current_label)
-
-        new_data = {
-            'Video_name': os.path.basename(self.current_video_path),
-            'Description': self.current_label
-        }
-
-        with open(self.out_path, mode='r', newline='') as file:
-            reader = csv.DictReader(file)
-            rows = list(reader)
-
-        video_name_to_find = new_data["Video_name"]
-        video_name_exists = False
-
-        for row in rows:
-            if row["Video_name"] == video_name_to_find:
-                row["Description"] = new_data["Description"]
-                video_name_exists = True
-                break
-
-        if not video_name_exists:
-            rows.append(new_data)
-
-        with open(self.out_path, mode='w', newline='') as file:
-            fieldnames = ["Video_name", "Description"]
-            writer = csv.DictWriter(file, fieldnames=fieldnames)
-
-            writer.writeheader()
-            for row in rows:
-                writer.writerow(row)
 
 
 if __name__ == "__main__":
