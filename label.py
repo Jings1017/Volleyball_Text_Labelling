@@ -97,36 +97,13 @@ class VolleyballLabel(QMainWindow):
         self.annotation_text.setAlignment(QtCore.Qt.AlignLeft)
         self.anno_layout.addWidget(self.annotation_text)
 
-        self.hint_layout = QHBoxLayout()
-        self.video_layout.addLayout(self.hint_layout)
+        # ------------------------------------------------------------
 
+        self.setting_position_layout = QVBoxLayout()
         self.setting_position_text = QLabel('Setting Position')
         self.setting_position_text.setFont(QFont('Arial', 12))
         self.setting_position_text.setAlignment(QtCore.Qt.AlignCenter)
-        self.hint_layout.addWidget(self.setting_position_text)
-
-        self.attacker_text = QLabel('Attacker')
-        self.attacker_text.setFont(QFont('Arial', 12))
-        self.attacker_text.setAlignment(QtCore.Qt.AlignCenter)
-        self.hint_layout.addWidget(self.attacker_text)
-
-        self.attacker_position_text = QLabel('Attacker Position')
-        self.attacker_position_text.setFont(QFont('Arial', 12))
-        self.attacker_position_text.setAlignment(QtCore.Qt.AlignCenter)
-        self.hint_layout.addWidget(self.attacker_position_text)
-
-        self.point_text = QLabel('Get/Lose')
-        self.point_text.setFont(QFont('Arial', 12))
-        self.point_text.setAlignment(QtCore.Qt.AlignCenter)
-        self.hint_layout.addWidget(self.point_text)
-
-        self.attack_method_text = QLabel('Attack Method')
-        self.attack_method_text.setFont(QFont('Arial', 12))
-        self.attack_method_text.setAlignment(QtCore.Qt.AlignCenter)
-        self.hint_layout.addWidget(self.attack_method_text)
-
-        self.labelling_layout = QHBoxLayout()
-        self.video_layout.addLayout(self.labelling_layout)
+        self.setting_position_layout.addWidget(self.setting_position_text)
 
         self.setting_position_combobox = QComboBox()
         self.setting_position_combobox.setFixedSize(250, 50)
@@ -134,17 +111,31 @@ class VolleyballLabel(QMainWindow):
             ['position 1', 'position 2', 'position 3', 'position 4', 'position 5', 'position 6',
              'position 1 and position 2', 'position 2 and position 3', 'position 3 and position 4',
              'position 4 and position 5', 'position 5 and position 6', 'position 1 and position 6'])
-        self.labelling_layout.addWidget(self.setting_position_combobox)
+        self.setting_position_layout.addWidget(self.setting_position_combobox)
         self.setting_position_combobox.activated.connect(
             self.update_annotation_text)
+
+        # ----
+        self.attacker_layout = QVBoxLayout()
+        self.attacker_text = QLabel('Attacker')
+        self.attacker_text.setFont(QFont('Arial', 12))
+        self.attacker_text.setAlignment(QtCore.Qt.AlignCenter)
+        self.attacker_layout.addWidget(self.attacker_text)
 
         self.attacker_combobox = QComboBox()
         self.attacker_combobox.setFixedSize(150, 50)
         self.attacker_combobox.addItems(
             ['outside hitter', 'opposite', 'middle blocker', 'setter', 'libero'])
-        self.labelling_layout.addWidget(self.attacker_combobox)
+        self.attacker_layout.addWidget(self.attacker_combobox)
         self.attacker_combobox.activated.connect(
             self.update_annotation_text)
+
+        # ----
+        self.attack_position_layout = QVBoxLayout()
+        self.attacker_position_text = QLabel('Attacker Position')
+        self.attacker_position_text.setFont(QFont('Arial', 12))
+        self.attacker_position_text.setAlignment(QtCore.Qt.AlignCenter)
+        self.attack_position_layout.addWidget(self.attacker_position_text)
 
         self.attack_position_combobox = QComboBox()
         self.attack_position_combobox.setFixedSize(250, 50)
@@ -152,25 +143,47 @@ class VolleyballLabel(QMainWindow):
             ['position 1', 'position 2', 'position 3', 'position 4', 'position 5', 'position 6',
              'position 1 and position 2', 'position 2 and position 3', 'position 3 and position 4',
              'position 4 and position 5', 'position 5 and position 6', 'position 1 and position 6'])
-        self.labelling_layout.addWidget(self.attack_position_combobox)
+        self.attack_position_layout.addWidget(self.attack_position_combobox)
         self.attack_position_combobox.activated.connect(
             self.update_annotation_text)
+
+        # ----
+        self.point_layout = QVBoxLayout()
+        self.point_text = QLabel('Get/Lose')
+        self.point_text.setFont(QFont('Arial', 12))
+        self.point_text.setAlignment(QtCore.Qt.AlignCenter)
+        self.point_layout.addWidget(self.point_text)
 
         self.point_combobox = QComboBox()
         self.point_combobox.setFixedSize(150, 50)
         self.point_combobox.addItems(
             ['gets', 'loses'])
-        self.labelling_layout.addWidget(self.point_combobox)
+        self.point_layout.addWidget(self.point_combobox)
         self.point_combobox.activated.connect(
             self.update_annotation_text)
+
+        # ----
+        self.attack_method_layout = QVBoxLayout()
+        self.attack_method_text = QLabel('Attack Method')
+        self.attack_method_text.setFont(QFont('Arial', 12))
+        self.attack_method_text.setAlignment(QtCore.Qt.AlignCenter)
+        self.attack_method_layout.addWidget(self.attack_method_text)
 
         self.attack_method_combobox = QComboBox()
         self.attack_method_combobox.setFixedSize(150, 50)
         self.attack_method_combobox.addItems(
             ['spike', 'A quick', 'B quick', 'C quick', 'D quick', 'back-row spike'])
-        self.labelling_layout.addWidget(self.attack_method_combobox)
+        self.attack_method_layout.addWidget(self.attack_method_combobox)
         self.attack_method_combobox.activated.connect(
             self.update_annotation_text)
+
+        self.custom_choose_layout = QHBoxLayout()
+        self.video_layout.addLayout(self.custom_choose_layout)
+        self.custom_choose_layout.addLayout(self.setting_position_layout)
+        self.custom_choose_layout.addLayout(self.attacker_layout)
+        self.custom_choose_layout.addLayout(self.attack_position_layout)
+        self.custom_choose_layout.addLayout(self.point_layout)
+        self.custom_choose_layout.addLayout(self.attack_method_layout)
 
         self.media_content = None
         self.current_video_path = None
