@@ -9,7 +9,7 @@ from PyQt5.QtGui import QFont
 import csv
 
 
-class VideoPlayerApp(QMainWindow):
+class VolleyballLabel(QMainWindow):
     def __init__(self):
         super().__init__()
 
@@ -49,7 +49,7 @@ class VideoPlayerApp(QMainWindow):
         self.buttons_layout.addWidget(self.previous_video_button)
 
         self.video_list_view = QListView()
-        self.video_list_view.setFixedSize(250, 350)
+        self.video_list_view.setFixedSize(250, 500)
         self.buttons_layout.addWidget(self.video_list_view)
 
         self.video_list_model = QStringListModel()
@@ -81,7 +81,7 @@ class VideoPlayerApp(QMainWindow):
         self.anno_layout = QHBoxLayout()
         self.video_layout.addLayout(self.anno_layout)
 
-        self.annotation_label = QLabel('Current label : ')
+        self.annotation_label = QLabel('  Current label : ')
         self.annotation_label.setFont(QFont('Arial', 14))
         self.annotation_label.setAlignment(QtCore.Qt.AlignLeft)
         self.anno_layout.addWidget(self.annotation_label)
@@ -90,6 +90,34 @@ class VideoPlayerApp(QMainWindow):
         self.annotation_text.setFont(QFont('Arial', 14))
         self.annotation_text.setAlignment(QtCore.Qt.AlignLeft)
         self.anno_layout.addWidget(self.annotation_text)
+
+        self.hint_layout = QHBoxLayout()
+        self.video_layout.addLayout(self.hint_layout)
+
+        self.setting_position_text = QLabel('Setting Position')
+        self.setting_position_text.setFont(QFont('Arial', 12))
+        self.setting_position_text.setAlignment(QtCore.Qt.AlignCenter)
+        self.hint_layout.addWidget(self.setting_position_text)
+
+        self.attacker_text = QLabel('Attacker')
+        self.attacker_text.setFont(QFont('Arial', 12))
+        self.attacker_text.setAlignment(QtCore.Qt.AlignCenter)
+        self.hint_layout.addWidget(self.attacker_text)
+
+        self.attacker_position_text = QLabel('Attacker Position')
+        self.attacker_position_text.setFont(QFont('Arial', 12))
+        self.attacker_position_text.setAlignment(QtCore.Qt.AlignCenter)
+        self.hint_layout.addWidget(self.attacker_position_text)
+
+        self.point_text = QLabel('Get/Lose')
+        self.point_text.setFont(QFont('Arial', 12))
+        self.point_text.setAlignment(QtCore.Qt.AlignCenter)
+        self.hint_layout.addWidget(self.point_text)
+
+        self.attack_method_text = QLabel('Attack Method')
+        self.attack_method_text.setFont(QFont('Arial', 12))
+        self.attack_method_text.setAlignment(QtCore.Qt.AlignCenter)
+        self.hint_layout.addWidget(self.attack_method_text)
 
         self.labelling_layout = QHBoxLayout()
         self.video_layout.addLayout(self.labelling_layout)
@@ -278,6 +306,6 @@ class VideoPlayerApp(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = VideoPlayerApp()
+    window = VolleyballLabel()
     window.show()
     sys.exit(app.exec_())
