@@ -14,7 +14,7 @@ class VolleyballLabel(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Volleyball Text Labelling")
-        self.setGeometry(100, 100, 1200, 800)
+        self.setGeometry(100, 100, 1500, 800)
 
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
@@ -24,32 +24,32 @@ class VolleyballLabel(QMainWindow):
         self.buttons_layout = QVBoxLayout()
 
         self.load_single_button = QPushButton("Open")
-        self.load_single_button.setFixedSize(250, 50)
+        self.load_single_button.setFixedSize(300, 50)
         self.load_single_button.clicked.connect(self.load_single_video)
         self.buttons_layout.addWidget(self.load_single_button)
 
         self.load_multiple_button = QPushButton("Open Dir")
-        self.load_multiple_button.setFixedSize(250, 50)
+        self.load_multiple_button.setFixedSize(300, 50)
         self.load_multiple_button.clicked.connect(self.load_multiple_videos)
         self.buttons_layout.addWidget(self.load_multiple_button)
 
         self.save_location_button = QPushButton("Save Dir")
-        self.save_location_button.setFixedSize(250, 50)
+        self.save_location_button.setFixedSize(300, 50)
         self.save_location_button.clicked.connect(self.select_save_location)
         self.buttons_layout.addWidget(self.save_location_button)
 
         self.next_video_button = QPushButton("Next Video")
-        self.next_video_button.setFixedSize(250, 50)
+        self.next_video_button.setFixedSize(300, 50)
         self.next_video_button.clicked.connect(self.load_next_video)
         self.buttons_layout.addWidget(self.next_video_button)
 
         self.previous_video_button = QPushButton("Previous Video")
-        self.previous_video_button.setFixedSize(250, 50)
+        self.previous_video_button.setFixedSize(300, 50)
         self.previous_video_button.clicked.connect(self.load_prev_video)
         self.buttons_layout.addWidget(self.previous_video_button)
 
         self.video_list_view = QListView()
-        self.video_list_view.setFixedSize(250, 500)
+        self.video_list_view.setFixedSize(300, 500)
         self.buttons_layout.addWidget(self.video_list_view)
 
         self.video_list_model = QStringListModel()
@@ -58,7 +58,6 @@ class VolleyballLabel(QMainWindow):
         self.buttons_layout.setSpacing(1)
         self.layout.addLayout(self.buttons_layout)
 
-        # Create a vertical layout for the video player and play button
         self.video_layout = QVBoxLayout()
         self.layout.addLayout(self.video_layout)
 
@@ -74,9 +73,16 @@ class VolleyballLabel(QMainWindow):
         self.media_player = QMediaPlayer()
         self.media_player.setVideoOutput(self.video_widget)
 
+        self.center_btn_layout = QHBoxLayout()
+        self.video_layout.addLayout(self.center_btn_layout)
+
         self.play_button = QPushButton("Play")
         self.play_button.clicked.connect(self.play_video)
-        self.video_layout.addWidget(self.play_button)
+        self.center_btn_layout.addWidget(self.play_button)
+
+        self.done_button = QPushButton("Done")
+        self.done_button.clicked.connect(self.save_current_data)
+        self.center_btn_layout.addWidget(self.done_button)
 
         self.anno_layout = QHBoxLayout()
         self.video_layout.addLayout(self.anno_layout)
@@ -125,7 +131,9 @@ class VolleyballLabel(QMainWindow):
         self.setting_position_combobox = QComboBox()
         self.setting_position_combobox.setFixedSize(150, 50)
         self.setting_position_combobox.addItems(
-            ['position 1', 'position 2', 'position 3', 'position 4', 'position 5', 'position 6'])
+            ['position 1', 'position 2', 'position 3', 'position 4', 'position 5', 'position 6',
+             'position 1 and position 2', 'position 2 and position 3', 'position 3 and position 4',
+             'position 4 and position 5', 'position 5 and position 6', 'position 1 and position 6'])
         self.labelling_layout.addWidget(self.setting_position_combobox)
         self.setting_position_combobox.activated.connect(
             self.update_annotation_text)
@@ -141,7 +149,9 @@ class VolleyballLabel(QMainWindow):
         self.attack_position_combobox = QComboBox()
         self.attack_position_combobox.setFixedSize(150, 50)
         self.attack_position_combobox.addItems(
-            ['position 1', 'position 2', 'position 3', 'position 4', 'position 5', 'position 6'])
+            ['position 1', 'position 2', 'position 3', 'position 4', 'position 5', 'position 6',
+             'position 1 and position 2', 'position 2 and position 3', 'position 3 and position 4',
+             'position 4 and position 5', 'position 5 and position 6', 'position 1 and position 6'])
         self.labelling_layout.addWidget(self.attack_position_combobox)
         self.attack_position_combobox.activated.connect(
             self.update_annotation_text)
@@ -178,6 +188,9 @@ class VolleyballLabel(QMainWindow):
             self.media_player.play()
             self.play_button.setText("Pause")
 
+    def save_current_data(self):
+        pass
+
     def load_single_video(self):
         options = QFileDialog.Options()
         file_path, _ = QFileDialog.getOpenFileName(
@@ -201,7 +214,11 @@ class VolleyballLabel(QMainWindow):
                 folder_path) if f.endswith(('.mov', '.mp4', '.avi'))]
             self.video_paths = [os.path.join(folder_path, video_file)
                                 for video_file in video_files]
-            self.video_list_model.setStringList(self.video_paths)
+
+            self.show_video_names = [os.path.basename(
+                video_path) for video_path in self.video_paths]
+
+            self.video_list_model.setStringList(self.show_video_names)
 
             if self.video_paths:
                 self.current_video_path = self.video_paths[self.current_video_index]
@@ -219,9 +236,6 @@ class VolleyballLabel(QMainWindow):
         if save_folder:
             self.save_csv_folder = save_folder
             self.out_path = os.path.join(self.save_csv_folder, 'label.csv')
-            with open(self.out_path, 'w', newline='') as csvfile:
-                self.writer = csv.writer(csvfile)
-                self.writer.writerow(['Video_name', 'Description'])
 
     def load_next_video(self):
         if len(self.video_paths) > 1 and self.current_video_index < len(self.video_paths)-1:
@@ -273,10 +287,9 @@ class VolleyballLabel(QMainWindow):
         self.current_label = 'The setter sets the ball to {}, and the {} from {} {} a point by {}.'.format(self.setting_position_combobox.currentText(
         ), self.attacker_combobox.currentText(), self.attack_position_combobox.currentText(), self.point_combobox.currentText(), self.attack_method_combobox.currentText())
         self.annotation_text.setText(self.current_label)
-        print(self.current_label)
 
         new_data = {
-            'Video_name': self.current_video_path,
+            'Video_name': os.path.basename(self.current_video_path),
             'Description': self.current_label
         }
 
@@ -301,7 +314,8 @@ class VolleyballLabel(QMainWindow):
             writer = csv.DictWriter(file, fieldnames=fieldnames)
 
             writer.writeheader()
-            writer.writerows(rows)
+            for row in rows:
+                writer.writerow(row)
 
 
 if __name__ == "__main__":
