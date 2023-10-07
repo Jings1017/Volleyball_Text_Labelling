@@ -14,7 +14,8 @@ class VolleyballLabel(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Volleyball Text Labelling")
-        self.setGeometry(100, 100, 1700, 800)
+        self.setGeometry(100, 100, 1700, 900)
+        self.setFixedSize(1700, 900)
 
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
@@ -97,12 +98,13 @@ class VolleyballLabel(QMainWindow):
 
         self.original_label = QLabel('  Original label : ')
         self.original_label.setFont(QFont('Arial', 14))
-        self.original_label.setAlignment(QtCore.Qt.AlignLeft)
+        self.original_label.setAlignment(QtCore.Qt.AlignVCenter)
         self.original_layout.addWidget(self.original_label)
 
         self.original_text = QLabel('')
         self.original_text.setFont(QFont('Arial', 14))
-        self.original_text.setAlignment(QtCore.Qt.AlignLeft)
+        self.original_text.setAlignment(
+            QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
         self.original_layout.addWidget(self.original_text)
 
         self.anno_layout = QHBoxLayout()
@@ -110,12 +112,13 @@ class VolleyballLabel(QMainWindow):
 
         self.annotation_label = QLabel('  Current label : ')
         self.annotation_label.setFont(QFont('Arial', 14))
-        self.annotation_label.setAlignment(QtCore.Qt.AlignLeft)
+        self.annotation_label.setAlignment(QtCore.Qt.AlignVCenter)
         self.anno_layout.addWidget(self.annotation_label)
 
         self.annotation_text = QLabel('')
         self.annotation_text.setFont(QFont('Arial', 14))
-        self.annotation_text.setAlignment(QtCore.Qt.AlignLeft)
+        self.annotation_text.setAlignment(
+            QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
         self.anno_layout.addWidget(self.annotation_text)
 
         # ------------------------------------------------------------
@@ -273,6 +276,7 @@ class VolleyballLabel(QMainWindow):
             self.media_player.setMedia(self.media_content)
             self.video_title_label.setText(
                 os.path.basename(self.current_video_path))
+            self.update_original_text()
 
     def load_multiple_videos(self):
         options = QFileDialog.Options()
@@ -300,6 +304,7 @@ class VolleyballLabel(QMainWindow):
                 self.media_content = QMediaContent(
                     QUrl.fromLocalFile(self.current_video_path))
                 self.media_player.setMedia(self.media_content)
+                self.update_original_text()
 
     def select_save_location(self):
         options = QFileDialog.Options()
@@ -332,6 +337,8 @@ class VolleyballLabel(QMainWindow):
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.exec()
 
+        self.update_original_text()
+
     def load_prev_video(self):
         black_color = QColor(0, 0, 0)
         palette = QPalette()
@@ -361,11 +368,18 @@ class VolleyballLabel(QMainWindow):
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.exec()
 
+        self.update_original_text()
+
     def handle_selection_changed(self):
         self.select_button.setEnabled(
             bool(self.video_list_view.selectedIndexes()))
 
     def handle_select_clicked(self):
+        black_color = QColor(0, 0, 0)
+        palette = QPalette()
+        palette.setColor(QPalette.WindowText, black_color)
+        self.annotation_text.setPalette(palette)
+
         for index in self.video_list_view.selectedIndexes():
             item = self.video_list_view.model().itemFromIndex(index)
             print(item.text())
@@ -377,6 +391,7 @@ class VolleyballLabel(QMainWindow):
             self.media_content = QMediaContent(
                 QUrl.fromLocalFile(self.current_video_path))
             self.media_player.setMedia(self.media_content)
+            self.update_original_text()
 
     def update_annotation_text(self):
         text = ''
@@ -394,6 +409,23 @@ class VolleyballLabel(QMainWindow):
             ), self.attack_position_combobox.currentText(), self.point_combobox.currentText(), self.attack_method_combobox.currentText())
         self.current_label = text
         self.annotation_text.setText(self.current_label)
+
+    def update_original_text(self):
+        with open(self.out_path, mode='r', newline='') as file:
+            reader = csv.DictReader(file)
+            rows = list(reader)
+
+        video_name_exists = False
+        for row in rows:
+            if row["Video_name"] == os.path.basename(self.current_video_path):
+                self.original_text.setText(row["Description"])
+                video_name_exists = True
+                break
+
+        if not video_name_exists:
+            self.original_text.setText('NO Annotation')
+
+        print(self.original_text.text())
 
 
 if __name__ == "__main__":
