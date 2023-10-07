@@ -1,6 +1,6 @@
 import sys
 import os
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QListView, QHBoxLayout, QWidget, QPushButton, QFileDialog, QLabel, QMessageBox, QComboBox
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
@@ -51,12 +51,20 @@ class VolleyballLabel(QMainWindow):
         self.video_list_view = QListView()
         self.video_list_view.setFixedSize(300, 500)
         self.buttons_layout.addWidget(self.video_list_view)
+        self.model = QtGui.QStandardItemModel()
+        self.video_list_view.setModel(self.model)
+        self.video_list_view.selectionModel().selectionChanged.connect(
+            self.handle_selection_changed
+        )
 
-        self.video_list_model = QStringListModel()
-        self.video_list_view.setModel(self.video_list_model)
+        self.select_button = QPushButton("Select")
+        self.select_button.setFixedSize(300, 50)
+        self.select_button.clicked.connect(self.handle_select_clicked)
+        self.buttons_layout.addWidget(self.select_button)
 
-        self.buttons_layout.setSpacing(1)
         self.layout.addLayout(self.buttons_layout)
+
+        # ---------------------------------------------------------
 
         self.video_layout = QVBoxLayout()
         self.layout.addLayout(self.video_layout)
@@ -83,6 +91,19 @@ class VolleyballLabel(QMainWindow):
         self.done_button = QPushButton("Done")
         self.done_button.clicked.connect(self.save_current_data)
         self.center_btn_layout.addWidget(self.done_button)
+
+        self.original_layout = QHBoxLayout()
+        self.video_layout.addLayout(self.original_layout)
+
+        self.original_label = QLabel('  Original label : ')
+        self.original_label.setFont(QFont('Arial', 14))
+        self.original_label.setAlignment(QtCore.Qt.AlignLeft)
+        self.original_layout.addWidget(self.original_label)
+
+        self.original_text = QLabel('')
+        self.original_text.setFont(QFont('Arial', 14))
+        self.original_text.setAlignment(QtCore.Qt.AlignLeft)
+        self.original_layout.addWidget(self.original_text)
 
         self.anno_layout = QHBoxLayout()
         self.video_layout.addLayout(self.anno_layout)
@@ -186,6 +207,7 @@ class VolleyballLabel(QMainWindow):
         self.custom_choose_layout.addLayout(self.attack_method_layout)
 
         self.media_content = None
+        self.folder_path = ''
         self.current_video_path = None
         self.video_paths = []
         self.current_video_index = 0
@@ -252,19 +274,22 @@ class VolleyballLabel(QMainWindow):
 
     def load_multiple_videos(self):
         options = QFileDialog.Options()
-        folder_path = QFileDialog.getExistingDirectory(
+        self.folder_path = QFileDialog.getExistingDirectory(
             self, "Open Folder", "", options=options)
 
-        if folder_path:
+        if self.folder_path:
             video_files = [f for f in os.listdir(
-                folder_path) if f.endswith(('.mov', '.mp4', '.avi'))]
-            self.video_paths = [os.path.join(folder_path, video_file)
+                self.folder_path) if f.endswith(('.mov', '.mp4', '.avi'))]
+            self.video_paths = [os.path.join(self.folder_path, video_file)
                                 for video_file in video_files]
 
             self.show_video_names = [os.path.basename(
                 video_path) for video_path in self.video_paths]
 
-            self.video_list_model.setStringList(self.show_video_names)
+            for i in range(len(self.show_video_names)):
+                self.model.appendRow(QtGui.QStandardItem(
+                    str(self.show_video_names[i])))
+            self.video_list_view.setModel(self.model)
 
             if self.video_paths:
                 self.current_video_path = self.video_paths[self.current_video_index]
@@ -338,6 +363,23 @@ class VolleyballLabel(QMainWindow):
         video_names = self.video_list_model.stringList()
         video_names.append(video_name)
         self.video_list_model.setStringList(video_names)
+
+    def handle_selection_changed(self):
+        self.select_button.setEnabled(
+            bool(self.video_list_view.selectedIndexes()))
+
+    def handle_select_clicked(self):
+        for index in self.video_list_view.selectedIndexes():
+            item = self.video_list_view.model().itemFromIndex(index)
+            print(item.text())
+            self.current_video_path = os.path.join(
+                self.folder_path, item.text())
+            print(self.current_video_path)
+            self.video_title_label.setText(
+                os.path.basename(self.current_video_path))
+            self.media_content = QMediaContent(
+                QUrl.fromLocalFile(self.current_video_path))
+            self.media_player.setMedia(self.media_content)
 
     def update_annotation_text(self):
         text = ''
