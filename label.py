@@ -265,10 +265,12 @@ class VolleyballLabel(QMainWindow):
             self, "Open Video File", "", "Video Files (*.mov *.mp4 *.avi);;All Files (*)", options=options)
         if file_path:
             self.current_video_path = file_path
+            self.model.appendRow(QtGui.QStandardItem(
+                str(os.path.basename(self.current_video_path))))
+            self.video_list_view.setModel(self.model)
             self.media_content = QMediaContent(
                 QUrl.fromLocalFile(self.current_video_path))
             self.media_player.setMedia(self.media_content)
-            self.update_video_list(file_path)
             self.video_title_label.setText(
                 os.path.basename(self.current_video_path))
 
@@ -358,11 +360,6 @@ class VolleyballLabel(QMainWindow):
             msg_box.setText('This is the first video in the folder :)')
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.exec()
-
-    def update_video_list(self, video_name):
-        video_names = self.video_list_model.stringList()
-        video_names.append(video_name)
-        self.video_list_model.setStringList(video_names)
 
     def handle_selection_changed(self):
         self.select_button.setEnabled(
