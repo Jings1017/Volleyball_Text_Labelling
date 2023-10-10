@@ -1,10 +1,10 @@
 import sys
 import os
 from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QListView, QHBoxLayout, QWidget, QPushButton, QFileDialog, QLabel, QMessageBox, QComboBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QListWidget, QListWidgetItem, QListView, QHBoxLayout, QWidget, QPushButton, QFileDialog, QLabel, QMessageBox, QComboBox
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
-from PyQt5.QtCore import QUrl, QStringListModel
+from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QFont, QColor, QPalette
 import csv
 import json
@@ -53,19 +53,9 @@ class VolleyballLabel(QMainWindow):
         self.previous_video_button.clicked.connect(self.load_prev_video)
         self.buttons_layout.addWidget(self.previous_video_button)
 
-        self.video_list_view = QListView()
-        self.video_list_view.setFixedSize(300, 500)
-        self.buttons_layout.addWidget(self.video_list_view)
-        self.model = QtGui.QStandardItemModel()
-        self.video_list_view.setModel(self.model)
-        self.video_list_view.selectionModel().selectionChanged.connect(
-            self.handle_selection_changed
-        )
-
-        self.select_button = QPushButton("Select")
-        self.select_button.setFixedSize(300, 50)
-        self.select_button.clicked.connect(self.handle_select_clicked)
-        self.buttons_layout.addWidget(self.select_button)
+        self.listWidget = QListWidget(self)
+        self.listWidget.setFixedSize(300, 500)
+        self.buttons_layout.addWidget(self.listWidget)
 
         self.layout.addLayout(self.buttons_layout)
 
@@ -278,10 +268,12 @@ class VolleyballLabel(QMainWindow):
             self.show_video_names = [os.path.basename(
                 video_path) for video_path in self.video_paths]
 
-            for i in range(len(self.show_video_names)):
-                self.model.appendRow(QtGui.QStandardItem(
-                    str(self.show_video_names[i])))
-            self.video_list_view.setModel(self.model)
+            for item_text in self.show_video_names:
+                item = QListWidgetItem(item_text)
+                item.setBackground(QColor(255, 255, 100))
+                self.listWidget.addItem(item)
+
+            self.listWidget.itemClicked.connect(self.itemClickedHandler)
 
             if self.video_paths:
                 self.current_video_path = self.video_paths[self.current_video_index]
@@ -291,6 +283,24 @@ class VolleyballLabel(QMainWindow):
                     QUrl.fromLocalFile(self.current_video_path))
                 self.media_player.setMedia(self.media_content)
                 self.update_original_text()
+
+    def itemClickedHandler(self, item):
+        print(f'click : {item.text()}')
+
+        black_color = QColor(0, 0, 0)
+        palette = QPalette()
+        palette.setColor(QPalette.WindowText, black_color)
+        self.annotation_text.setPalette(palette)
+
+        self.current_video_path = os.path.join(self.folder_path, item.text())
+        print(self.current_video_path)
+
+        self.video_title_label.setText(
+            os.path.basename(self.current_video_path))
+        self.media_content = QMediaContent(
+            QUrl.fromLocalFile(self.current_video_path))
+        self.media_player.setMedia(self.media_content)
+        self.update_original_text()
 
     def select_save_location(self):
         options = QFileDialog.Options()
@@ -355,29 +365,6 @@ class VolleyballLabel(QMainWindow):
             msg_box.exec()
 
         self.update_original_text()
-
-    def handle_selection_changed(self):
-        self.select_button.setEnabled(
-            bool(self.video_list_view.selectedIndexes()))
-
-    def handle_select_clicked(self):
-        black_color = QColor(0, 0, 0)
-        palette = QPalette()
-        palette.setColor(QPalette.WindowText, black_color)
-        self.annotation_text.setPalette(palette)
-
-        for index in self.video_list_view.selectedIndexes():
-            item = self.video_list_view.model().itemFromIndex(index)
-            print(item.text())
-            self.current_video_path = os.path.join(
-                self.folder_path, item.text())
-            print(self.current_video_path)
-            self.video_title_label.setText(
-                os.path.basename(self.current_video_path))
-            self.media_content = QMediaContent(
-                QUrl.fromLocalFile(self.current_video_path))
-            self.media_player.setMedia(self.media_content)
-            self.update_original_text()
 
     def update_annotation_text(self):
         text = ''
