@@ -76,7 +76,7 @@ class VolleyballLabel(QMainWindow):
         self.video_layout.addWidget(self.video_title_label)
 
         self.video_widget = QVideoWidget()
-        self.video_widget.setFixedSize(960, 540)
+        self.video_widget.setFixedSize(1150, 650)
         self.video_layout.addWidget(self.video_widget)
 
         self.media_player = QMediaPlayer()
@@ -96,13 +96,8 @@ class VolleyballLabel(QMainWindow):
         self.original_layout = QHBoxLayout()
         self.video_layout.addLayout(self.original_layout)
 
-        self.original_label = QLabel('  Original label : ')
-        self.original_label.setFont(QFont('Arial', 14))
-        self.original_label.setAlignment(QtCore.Qt.AlignVCenter)
-        self.original_layout.addWidget(self.original_label)
-
-        self.original_text = QLabel('')
-        self.original_text.setFont(QFont('Arial', 14))
+        self.original_text = QLabel('Original label :')
+        self.original_text.setFont(QFont('Arial', 12))
         self.original_text.setAlignment(
             QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
         self.original_layout.addWidget(self.original_text)
@@ -110,13 +105,8 @@ class VolleyballLabel(QMainWindow):
         self.anno_layout = QHBoxLayout()
         self.video_layout.addLayout(self.anno_layout)
 
-        self.annotation_label = QLabel('  Current label : ')
-        self.annotation_label.setFont(QFont('Arial', 14))
-        self.annotation_label.setAlignment(QtCore.Qt.AlignVCenter)
-        self.anno_layout.addWidget(self.annotation_label)
-
-        self.annotation_text = QLabel('')
-        self.annotation_text.setFont(QFont('Arial', 14))
+        self.annotation_text = QLabel('Current label :')
+        self.annotation_text.setFont(QFont('Arial', 12))
         self.annotation_text.setAlignment(
             QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
         self.anno_layout.addWidget(self.annotation_text)
@@ -396,10 +386,10 @@ class VolleyballLabel(QMainWindow):
     def update_annotation_text(self):
         text = ''
         if 'and' in self.setting_position_combobox.currentText():
-            text = 'The setter sets the ball between {},'.format(
+            text = 'The setter sets the ball between {}, '.format(
                 self.setting_position_combobox.currentText())
         else:
-            text = 'The setter sets the ball to {},'.format(
+            text = 'The setter sets the ball to {}, '.format(
                 self.setting_position_combobox.currentText())
         if 'and' in self.attack_position_combobox.currentText():
             text += 'and the {} between {} {} a point by {}.'.format(self.attacker_combobox.currentText(
@@ -408,9 +398,16 @@ class VolleyballLabel(QMainWindow):
             text += 'and the {} from {} {} a point by {}.'.format(self.attacker_combobox.currentText(
             ), self.attack_position_combobox.currentText(), self.point_combobox.currentText(), self.attack_method_combobox.currentText())
         self.current_label = text
-        self.annotation_text.setText(self.current_label)
+        self.annotation_text.setText('Current Label : '+self.current_label)
 
     def update_original_text(self):
+        if not os.path.isfile(self.out_path):
+            with open(self.out_path, mode='w', newline='') as file:
+                fieldnames = ["Video_name", "Description"]
+                writer = csv.DictWriter(file, fieldnames=fieldnames)
+
+                writer.writeheader()
+
         with open(self.out_path, mode='r', newline='') as file:
             reader = csv.DictReader(file)
             rows = list(reader)
@@ -418,12 +415,13 @@ class VolleyballLabel(QMainWindow):
         video_name_exists = False
         for row in rows:
             if row["Video_name"] == os.path.basename(self.current_video_path):
-                self.original_text.setText(row["Description"])
+                self.original_text.setText(
+                    'Original Label : '+row["Description"])
                 video_name_exists = True
                 break
 
         if not video_name_exists:
-            self.original_text.setText('NO Annotation')
+            self.original_text.setText('Original Label : '+'NO Annotation')
 
         print(self.original_text.text())
 
