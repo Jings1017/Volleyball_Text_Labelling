@@ -7,11 +7,15 @@ from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtCore import QUrl, QStringListModel
 from PyQt5.QtGui import QFont, QColor, QPalette
 import csv
+import json
 
 
 class VolleyballLabel(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        with open('./data.json') as f:
+            self.data = json.load(f)
 
         self.setWindowTitle("Volleyball Text Labelling")
         self.setGeometry(100, 100, 1700, 900)
@@ -121,10 +125,7 @@ class VolleyballLabel(QMainWindow):
 
         self.setting_position_combobox = QComboBox()
         self.setting_position_combobox.setFixedSize(250, 50)
-        self.setting_position_combobox.addItems(
-            ['position 1', 'position 2', 'position 3', 'position 4', 'position 5', 'position 6',
-             'position 1 and position 2', 'position 2 and position 3', 'position 3 and position 4',
-             'position 4 and position 5', 'position 5 and position 6', 'position 1 and position 6'])
+        self.setting_position_combobox.addItems(self.data['position'])
         self.setting_position_layout.addWidget(self.setting_position_combobox)
         self.setting_position_combobox.activated.connect(
             self.update_annotation_text)
@@ -138,8 +139,7 @@ class VolleyballLabel(QMainWindow):
 
         self.attacker_combobox = QComboBox()
         self.attacker_combobox.setFixedSize(150, 50)
-        self.attacker_combobox.addItems(
-            ['outside hitter', 'opposite', 'middle blocker', 'setter', 'libero'])
+        self.attacker_combobox.addItems(self.data['attacker'])
         self.attacker_layout.addWidget(self.attacker_combobox)
         self.attacker_combobox.activated.connect(
             self.update_annotation_text)
@@ -153,10 +153,7 @@ class VolleyballLabel(QMainWindow):
 
         self.attack_position_combobox = QComboBox()
         self.attack_position_combobox.setFixedSize(250, 50)
-        self.attack_position_combobox.addItems(
-            ['position 1', 'position 2', 'position 3', 'position 4', 'position 5', 'position 6',
-             'position 1 and position 2', 'position 2 and position 3', 'position 3 and position 4',
-             'position 4 and position 5', 'position 5 and position 6', 'position 1 and position 6'])
+        self.attack_position_combobox.addItems(self.data['position'])
         self.attack_position_layout.addWidget(self.attack_position_combobox)
         self.attack_position_combobox.activated.connect(
             self.update_annotation_text)
@@ -185,8 +182,7 @@ class VolleyballLabel(QMainWindow):
 
         self.attack_method_combobox = QComboBox()
         self.attack_method_combobox.setFixedSize(150, 50)
-        self.attack_method_combobox.addItems(
-            ['spike', 'A quick', 'B quick', 'C quick', 'D quick', 'back-row spike'])
+        self.attack_method_combobox.addItems(self.data['attack_method'])
         self.attack_method_layout.addWidget(self.attack_method_combobox)
         self.attack_method_combobox.activated.connect(
             self.update_annotation_text)
