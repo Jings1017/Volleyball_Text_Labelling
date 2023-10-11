@@ -28,10 +28,10 @@ class VolleyballLabel(QMainWindow):
 
         self.buttons_layout = QVBoxLayout()
 
-        self.load_single_button = QPushButton("Open")
-        self.load_single_button.setFixedSize(300, 50)
-        self.load_single_button.clicked.connect(self.load_single_video)
-        self.buttons_layout.addWidget(self.load_single_button)
+        # self.load_single_button = QPushButton("Open")
+        # self.load_single_button.setFixedSize(300, 50)
+        # self.load_single_button.clicked.connect(self.load_single_video)
+        # self.buttons_layout.addWidget(self.load_single_button)
 
         self.load_multiple_button = QPushButton("Open Dir")
         self.load_multiple_button.setFixedSize(300, 50)
@@ -250,9 +250,9 @@ class VolleyballLabel(QMainWindow):
             self, "Open Video File", "", "Video Files (*.mov *.mp4 *.avi);;All Files (*)", options=options)
         if file_path:
             self.current_video_path = file_path
-            self.model.appendRow(QtGui.QStandardItem(
-                str(os.path.basename(self.current_video_path))))
-            self.video_list_view.setModel(self.model)
+            # self.model.appendRow(QtGui.QStandardItem(
+            #     str(os.path.basename(self.current_video_path))))
+            # self.video_list_view.setModel(self.model)
             self.media_content = QMediaContent(
                 QUrl.fromLocalFile(self.current_video_path))
             self.media_player.setMedia(self.media_content)
