@@ -238,6 +238,12 @@ class VolleyballLabel(QMainWindow):
             for row in rows:
                 writer.writerow(row)
 
+        for i in range(self.listWidget.count()):
+            item = self.listWidget.item(i)
+            for row in rows:
+                if row["Video_name"] == item.text():
+                    item.setBackground(QColor(124, 232, 249))
+
     def load_single_video(self):
         options = QFileDialog.Options()
         file_path, _ = QFileDialog.getOpenFileName(
@@ -268,9 +274,15 @@ class VolleyballLabel(QMainWindow):
             self.show_video_names = [os.path.basename(
                 video_path) for video_path in self.video_paths]
 
+            with open(self.out_path, mode='r', newline='') as file:
+                reader = csv.DictReader(file)
+                rows = list(reader)
+
             for item_text in self.show_video_names:
                 item = QListWidgetItem(item_text)
-                item.setBackground(QColor(255, 255, 100))
+                for row in rows:
+                    if row["Video_name"] == item_text:
+                        item.setBackground(QColor(124, 232, 249))
                 self.listWidget.addItem(item)
 
             self.listWidget.itemClicked.connect(self.itemClickedHandler)
@@ -285,7 +297,6 @@ class VolleyballLabel(QMainWindow):
                 self.update_original_text()
 
     def itemClickedHandler(self, item):
-        print(f'click : {item.text()}')
 
         black_color = QColor(0, 0, 0)
         palette = QPalette()
@@ -293,7 +304,6 @@ class VolleyballLabel(QMainWindow):
         self.annotation_text.setPalette(palette)
 
         self.current_video_path = os.path.join(self.folder_path, item.text())
-        print(self.current_video_path)
 
         self.video_title_label.setText(
             os.path.basename(self.current_video_path))
@@ -405,8 +415,6 @@ class VolleyballLabel(QMainWindow):
 
         if not video_name_exists:
             self.original_text.setText('Original Label : '+'NO Annotation')
-
-        print(self.original_text.text())
 
 
 if __name__ == "__main__":
