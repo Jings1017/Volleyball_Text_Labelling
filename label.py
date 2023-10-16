@@ -283,7 +283,13 @@ class VolleyballLabel(QMainWindow):
                 for row in rows:
                     if row["Video_name"] == item_text:
                         item.setBackground(QColor(124, 232, 249))
-                self.listWidget.addItem(item)
+                is_exist = False
+                for index in range(self.listWidget.count()):
+                    it = self.listWidget.item(index)
+                    if it.text() == item_text:
+                        is_exist = True
+                if not is_exist:
+                    self.listWidget.addItem(item)
 
             self.listWidget.itemClicked.connect(self.itemClickedHandler)
 
@@ -328,6 +334,16 @@ class VolleyballLabel(QMainWindow):
         if save_folder:
             self.save_csv_folder = save_folder
             self.out_path = os.path.join(self.save_csv_folder, 'label.csv')
+
+        with open(self.out_path, mode='r', newline='') as file:
+            reader = csv.DictReader(file)
+            rows = list(reader)
+
+        for i in range(self.listWidget.count()):
+            item = self.listWidget.item(i)
+            for row in rows:
+                if row["Video_name"] == item.text():
+                    item.setBackground(QColor(124, 232, 249))
 
     def load_next_video(self):
         black_color = QColor(0, 0, 0)
