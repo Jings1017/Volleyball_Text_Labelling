@@ -296,6 +296,14 @@ class VolleyballLabel(QMainWindow):
                 self.media_player.setMedia(self.media_content)
                 self.update_original_text()
 
+        else:
+            msg_box = QMessageBox()
+            msg_box.setWindowTitle('Warning')
+            msg_box.setIcon(QMessageBox.Warning)
+            msg_box.setText('The Dir is empty !')
+            msg_box.setStandardButtons(QMessageBox.Ok)
+            msg_box.exec()
+
     def itemClickedHandler(self, item):
 
         black_color = QColor(0, 0, 0)
