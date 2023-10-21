@@ -40,7 +40,7 @@ class VolleyballLabel(QMainWindow):
             self.data = json.load(f)
 
         self.setWindowTitle("Volleyball Text Labelling")
-        self.setGeometry(100, 100, 1700, 900)
+        self.setGeometry(100, 100, 1500, 900)
         self.setFixedSize(1700, 900)
 
         self.central_widget = QWidget(self)
@@ -131,7 +131,8 @@ class VolleyballLabel(QMainWindow):
         self.video_title_label.setAlignment(QtCore.Qt.AlignCenter)
 
         self.video_widget = QVideoWidget()
-        self.video_widget.setFixedSize(1400, 500)
+        self.video_widget.setFixedSize(1450, 650)
+        self.video_widget.setAttribute(Qt.WA_TranslucentBackground, True)
 
         self.media_player = QMediaPlayer()
         self.media_player.setVideoOutput(self.video_widget)
@@ -145,9 +146,8 @@ class VolleyballLabel(QMainWindow):
         self.playButton.clicked.connect(self.play)
 
         self.positionSlider = QSlider(Qt.Horizontal)
-        self.positionSlider.setRange(0, 0)
+        self.positionSlider.setRange(0, 100)
         self.positionSlider.setStyleSheet(style)
-
         self.positionSlider.sliderMoved.connect(self.setPosition)
 
         self.original_text = QLabel('Original label :')
