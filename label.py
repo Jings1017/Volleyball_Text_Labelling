@@ -1,13 +1,35 @@
 import sys
 import os
 from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QListWidget, QListWidgetItem, QListView, QHBoxLayout, QWidget, QPushButton, QFileDialog, QLabel, QMessageBox, QComboBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QListWidget, QListWidgetItem, QSlider, QStyle, QHBoxLayout, QWidget, QPushButton, QFileDialog, QLabel, QMessageBox, QComboBox
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QUrl, Qt, QSize
 from PyQt5.QtGui import QFont, QColor, QPalette
 import csv
 import json
+
+style = """QSlider::groove:horizontal {
+border: 1px solid #999999;
+height: 20px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
+}
+QSlider::handle:horizontal {
+background: #fff;
+width: 10px;
+margin: -1px -1px;
+border: 1px solid #6FC1FF;
+}
+QSlider::handle:horizontal:hover {
+background: #000;
+border-color: #000;
+}
+QSlider::add-page:horizontal {
+background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);
+}
+QSlider::sub-page:horizontal{
+background: #6FC1FF
+}
+"""
 
 
 class VolleyballLabel(QMainWindow):
@@ -35,9 +57,8 @@ class VolleyballLabel(QMainWindow):
         self.buttons_layout.addWidget(self.next_video_button)
         self.buttons_layout.addWidget(self.previous_video_button)
         self.buttons_layout.addWidget(self.listWidget)
+        self.buttons_layout.addWidget(self.done_button)
         self.layout.addLayout(self.buttons_layout)
-
-        # ---------------------------------------------------------
 
         ### RIGHT layout ###
 
@@ -48,11 +69,14 @@ class VolleyballLabel(QMainWindow):
 
         self.video_layout.addWidget(self.video_title_label)
         self.video_layout.addWidget(self.video_widget)
-        self.video_layout.addLayout(self.center_btn_layout)
+
+        self.controlLayout = QHBoxLayout()
+        self.controlLayout.addWidget(self.playButton)
+        self.controlLayout.addWidget(self.positionSlider)
+
+        self.video_layout.addLayout(self.controlLayout)
         self.video_layout.addWidget(self.original_text)
         self.video_layout.addWidget(self.annotation_text)
-
-        # ------------------------------------------------------------
 
         self.custom_choose_layout = QHBoxLayout()
         self.custom_choose_layout.addLayout(self.setting_position_layout)
@@ -61,6 +85,12 @@ class VolleyballLabel(QMainWindow):
         self.custom_choose_layout.addLayout(self.point_layout)
         self.custom_choose_layout.addLayout(self.attack_method_layout)
         self.video_layout.addLayout(self.custom_choose_layout)
+
+        self.media_player.setVideoOutput(self.video_widget)
+        self.media_player.stateChanged.connect(self.mediaStateChanged)
+        self.media_player.positionChanged.connect(self.positionChanged)
+        self.media_player.durationChanged.connect(self.durationChanged)
+        self.media_player.error.connect(self.handleError)
 
         self.media_content = None
         self.folder_path = ''
@@ -91,25 +121,34 @@ class VolleyballLabel(QMainWindow):
         self.listWidget = QListWidget(self)
         self.listWidget.setFixedSize(300, 500)
 
+        self.done_button = QPushButton("Save")
+        self.done_button.setFixedSize(300, 50)
+        self.done_button.clicked.connect(self.save_current_data)
+
     def right_layout_component_init(self):
         self.video_title_label = QLabel('')
         self.video_title_label.setFont(QFont('Arial', 20))
         self.video_title_label.setAlignment(QtCore.Qt.AlignCenter)
 
         self.video_widget = QVideoWidget()
-        self.video_widget.setFixedSize(1150, 650)
+        self.video_widget.setFixedSize(1400, 500)
+
         self.media_player = QMediaPlayer()
         self.media_player.setVideoOutput(self.video_widget)
 
-        self.center_btn_layout = QHBoxLayout()
+        btnSize = QSize(25, 25)
+        self.playButton = QPushButton()
+        self.playButton.setEnabled(False)
+        self.playButton.setFixedHeight(25)
+        self.playButton.setIconSize(btnSize)
+        self.playButton.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+        self.playButton.clicked.connect(self.play)
 
-        self.play_button = QPushButton("Play")
-        self.play_button.clicked.connect(self.play_video)
-        self.center_btn_layout.addWidget(self.play_button)
+        self.positionSlider = QSlider(Qt.Horizontal)
+        self.positionSlider.setRange(0, 0)
+        self.positionSlider.setStyleSheet(style)
 
-        self.done_button = QPushButton("Done")
-        self.done_button.clicked.connect(self.save_current_data)
-        self.center_btn_layout.addWidget(self.done_button)
+        self.positionSlider.sliderMoved.connect(self.setPosition)
 
         self.original_text = QLabel('Original label :')
         self.original_text.setFont(QFont('Arial', 12))
@@ -195,13 +234,32 @@ class VolleyballLabel(QMainWindow):
         self.attack_method_combobox.activated.connect(
             self.update_annotation_text)
 
-    def play_video(self):
+    def play(self):
         if self.media_player.state() == QMediaPlayer.PlayingState:
             self.media_player.pause()
-            self.play_button.setText("Play")
         else:
             self.media_player.play()
-            self.play_button.setText("Pause")
+
+    def mediaStateChanged(self, state):
+        if self.media_player.state() == QMediaPlayer.PlayingState:
+            self.playButton.setIcon(
+                self.style().standardIcon(QStyle.SP_MediaPause))
+        else:
+            self.playButton.setIcon(
+                self.style().standardIcon(QStyle.SP_MediaPlay))
+
+    def positionChanged(self, position):
+        self.positionSlider.setValue(position)
+
+    def durationChanged(self, duration):
+        self.positionSlider.setRange(0, duration)
+
+    def setPosition(self, position):
+        self.media_player.setPosition(position)
+
+    def handleError(self):
+        self.playButton.setEnabled(False)
+        # self.statusBar.showMessage("Error: " + self.media_player.errorString())
 
     def save_current_data(self):
 
@@ -279,6 +337,7 @@ class VolleyballLabel(QMainWindow):
             self.listWidget.itemClicked.connect(self.itemClickedHandler)
 
             if self.video_paths:
+                self.playButton.setEnabled(True)
                 self.current_video_path = self.video_paths[self.current_video_index]
                 self.video_title_label.setText(
                     os.path.basename(self.current_video_path))
@@ -315,7 +374,6 @@ class VolleyballLabel(QMainWindow):
         options = QFileDialog.Options()
         save_folder = QFileDialog.getExistingDirectory(
             self, "Select Save Location", "", options=options)
-        print(save_folder)
         if save_folder:
             self.save_csv_folder = save_folder
             self.out_path = os.path.join(self.save_csv_folder, 'label.csv')
