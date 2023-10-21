@@ -23,61 +23,85 @@ class VolleyballLabel(QMainWindow):
 
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
-
         self.layout = QHBoxLayout(self.central_widget)
 
+        ### LEFT layout ###
+
+        self.left_layout_component_init()
+
         self.buttons_layout = QVBoxLayout()
-
-        # self.load_single_button = QPushButton("Open")
-        # self.load_single_button.setFixedSize(300, 50)
-        # self.load_single_button.clicked.connect(self.load_single_video)
-        # self.buttons_layout.addWidget(self.load_single_button)
-
-        self.load_multiple_button = QPushButton("Open Dir")
-        self.load_multiple_button.setFixedSize(300, 50)
-        self.load_multiple_button.clicked.connect(self.load_multiple_videos)
         self.buttons_layout.addWidget(self.load_multiple_button)
-
-        self.save_location_button = QPushButton("Save Dir")
-        self.save_location_button.setFixedSize(300, 50)
-        self.save_location_button.clicked.connect(self.select_save_location)
         self.buttons_layout.addWidget(self.save_location_button)
-
-        self.next_video_button = QPushButton("Next Video")
-        self.next_video_button.setFixedSize(300, 50)
-        self.next_video_button.clicked.connect(self.load_next_video)
         self.buttons_layout.addWidget(self.next_video_button)
-
-        self.previous_video_button = QPushButton("Previous Video")
-        self.previous_video_button.setFixedSize(300, 50)
-        self.previous_video_button.clicked.connect(self.load_prev_video)
         self.buttons_layout.addWidget(self.previous_video_button)
-
-        self.listWidget = QListWidget(self)
-        self.listWidget.setFixedSize(300, 500)
         self.buttons_layout.addWidget(self.listWidget)
-
         self.layout.addLayout(self.buttons_layout)
 
         # ---------------------------------------------------------
 
+        ### RIGHT layout ###
+
+        self.right_layout_component_init()
+
         self.video_layout = QVBoxLayout()
         self.layout.addLayout(self.video_layout)
 
+        self.video_layout.addWidget(self.video_title_label)
+        self.video_layout.addWidget(self.video_widget)
+        self.video_layout.addLayout(self.center_btn_layout)
+        self.video_layout.addWidget(self.original_text)
+        self.video_layout.addWidget(self.annotation_text)
+
+        # ------------------------------------------------------------
+
+        self.custom_choose_layout = QHBoxLayout()
+        self.custom_choose_layout.addLayout(self.setting_position_layout)
+        self.custom_choose_layout.addLayout(self.attacker_layout)
+        self.custom_choose_layout.addLayout(self.attack_position_layout)
+        self.custom_choose_layout.addLayout(self.point_layout)
+        self.custom_choose_layout.addLayout(self.attack_method_layout)
+        self.video_layout.addLayout(self.custom_choose_layout)
+
+        self.media_content = None
+        self.folder_path = ''
+        self.current_video_path = None
+        self.video_paths = []
+        self.current_video_index = 0
+        self.save_csv_folder = ''
+        self.current_label = ''
+        self.out_path = 'label.csv'
+
+    def left_layout_component_init(self):
+        self.load_multiple_button = QPushButton("Open Dir")
+        self.load_multiple_button.setFixedSize(300, 50)
+        self.load_multiple_button.clicked.connect(self.load_multiple_videos)
+
+        self.save_location_button = QPushButton("Save Dir")
+        self.save_location_button.setFixedSize(300, 50)
+        self.save_location_button.clicked.connect(self.select_save_location)
+
+        self.next_video_button = QPushButton("Next Video")
+        self.next_video_button.setFixedSize(300, 50)
+        self.next_video_button.clicked.connect(self.load_next_video)
+
+        self.previous_video_button = QPushButton("Previous Video")
+        self.previous_video_button.setFixedSize(300, 50)
+        self.previous_video_button.clicked.connect(self.load_prev_video)
+
+        self.listWidget = QListWidget(self)
+        self.listWidget.setFixedSize(300, 500)
+
+    def right_layout_component_init(self):
         self.video_title_label = QLabel('')
         self.video_title_label.setFont(QFont('Arial', 20))
         self.video_title_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.video_layout.addWidget(self.video_title_label)
 
         self.video_widget = QVideoWidget()
         self.video_widget.setFixedSize(1150, 650)
-        self.video_layout.addWidget(self.video_widget)
-
         self.media_player = QMediaPlayer()
         self.media_player.setVideoOutput(self.video_widget)
 
         self.center_btn_layout = QHBoxLayout()
-        self.video_layout.addLayout(self.center_btn_layout)
 
         self.play_button = QPushButton("Play")
         self.play_button.clicked.connect(self.play_video)
@@ -87,25 +111,19 @@ class VolleyballLabel(QMainWindow):
         self.done_button.clicked.connect(self.save_current_data)
         self.center_btn_layout.addWidget(self.done_button)
 
-        self.original_layout = QHBoxLayout()
-        self.video_layout.addLayout(self.original_layout)
-
         self.original_text = QLabel('Original label :')
         self.original_text.setFont(QFont('Arial', 12))
         self.original_text.setAlignment(
             QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
-        self.original_layout.addWidget(self.original_text)
-
-        self.anno_layout = QHBoxLayout()
-        self.video_layout.addLayout(self.anno_layout)
 
         self.annotation_text = QLabel('Current label :')
         self.annotation_text.setFont(QFont('Arial', 12))
         self.annotation_text.setAlignment(
             QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
-        self.anno_layout.addWidget(self.annotation_text)
 
-        # ------------------------------------------------------------
+        self.combo_layout_component_init()
+
+    def combo_layout_component_init(self):
 
         self.setting_position_layout = QVBoxLayout()
         self.setting_position_text = QLabel('Setting Position')
@@ -177,23 +195,6 @@ class VolleyballLabel(QMainWindow):
         self.attack_method_combobox.activated.connect(
             self.update_annotation_text)
 
-        self.custom_choose_layout = QHBoxLayout()
-        self.video_layout.addLayout(self.custom_choose_layout)
-        self.custom_choose_layout.addLayout(self.setting_position_layout)
-        self.custom_choose_layout.addLayout(self.attacker_layout)
-        self.custom_choose_layout.addLayout(self.attack_position_layout)
-        self.custom_choose_layout.addLayout(self.point_layout)
-        self.custom_choose_layout.addLayout(self.attack_method_layout)
-
-        self.media_content = None
-        self.folder_path = ''
-        self.current_video_path = None
-        self.video_paths = []
-        self.current_video_index = 0
-        self.save_csv_folder = ''
-        self.current_label = ''
-        self.out_path = 'label.csv'
-
     def play_video(self):
         if self.media_player.state() == QMediaPlayer.PlayingState:
             self.media_player.pause()
@@ -243,22 +244,6 @@ class VolleyballLabel(QMainWindow):
             for row in rows:
                 if row["Video_name"] == item.text():
                     item.setBackground(QColor(124, 232, 249))
-
-    def load_single_video(self):
-        options = QFileDialog.Options()
-        file_path, _ = QFileDialog.getOpenFileName(
-            self, "Open Video File", "", "Video Files (*.mov *.mp4 *.avi);;All Files (*)", options=options)
-        if file_path:
-            self.current_video_path = file_path
-            # self.model.appendRow(QtGui.QStandardItem(
-            #     str(os.path.basename(self.current_video_path))))
-            # self.video_list_view.setModel(self.model)
-            self.media_content = QMediaContent(
-                QUrl.fromLocalFile(self.current_video_path))
-            self.media_player.setMedia(self.media_content)
-            self.video_title_label.setText(
-                os.path.basename(self.current_video_path))
-            self.update_original_text()
 
     def load_multiple_videos(self):
         options = QFileDialog.Options()
