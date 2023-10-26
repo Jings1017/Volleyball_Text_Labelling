@@ -1,6 +1,7 @@
 from ui import Ui_MainWindow
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget
-import sys, os
+import sys
+import os
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QListWidget, QListWidgetItem, QSlider, QStyle, QHBoxLayout, QWidget, QPushButton, QFileDialog, QLabel, QMessageBox, QComboBox
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
@@ -32,6 +33,7 @@ background: #6FC1FF
 }
 """
 
+
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
@@ -44,9 +46,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.combobox_setting()
         self.original_text_label.setWordWrap(True)
         self.current_text_label.setWordWrap(True)
-        self.pushButton_switch1.setStyleSheet('background-color: rgb(58, 253, 149);')
-        self.pushButton_switch2.setStyleSheet('background-color: rgb(58, 253, 149);')
-        self.pushButton_switch3.setStyleSheet('background-color: rgb(58, 253, 149);')
+        self.pushButton_switch1.setStyleSheet(
+            'background-color: rgb(58, 253, 149);')
+        self.pushButton_switch2.setStyleSheet(
+            'background-color: rgb(58, 253, 149);')
+        self.pushButton_switch3.setStyleSheet(
+            'background-color: rgb(58, 253, 149);')
 
         self.media_content = None
         self.folder_path = ''
@@ -56,7 +61,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.save_csv_folder = ''
         self.current_label = ''
         self.out_path = 'label.csv'
-
 
     def onBindingUI(self):
         self.pushButton_open_dir.clicked.connect(self.open_dir)
@@ -69,7 +73,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.pushButton_switch2.clicked.connect(self.switch2_changed)
         self.pushButton_switch3.clicked.connect(self.switch3_changed)
 
-
         self.pushButton_switch1.clicked.connect(self.on_other_combobox_changed)
         self.pushButton_switch2.clicked.connect(self.on_other_combobox_changed)
         self.pushButton_switch3.clicked.connect(self.on_other_combobox_changed)
@@ -81,7 +84,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def combobox_setting(self):
         self.comboBox_score.addItems(['score', 'lose'])
-        self.comboBox_state.addItems(['strategy', 'serving']) # 組織進攻、發球進攻
+        self.comboBox_state.addItems(['strategy', 'serving'])  # 組織進攻、發球進攻
         self.comboBox_setter1.addItems(self.data['attacker'])
         self.comboBox_setter2.addItems(self.data['attacker'])
         self.comboBox_attacker.addItems(self.data['attacker'])
@@ -92,21 +95,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.comboBox_position_Z.addItems(self.data['position'])
         self.comboBox_attack.addItems(self.data['attack_method'])
 
-        self.comboBox_score.currentIndexChanged.connect(self.on_score_combobox_changed)
-        self.comboBox_state.currentTextChanged.connect(self.on_state_combobox_changed)
+        self.comboBox_score.currentIndexChanged.connect(
+            self.on_score_combobox_changed)
+        self.comboBox_state.currentTextChanged.connect(
+            self.on_state_combobox_changed)
 
-        self.comboBox_setter1.currentTextChanged.connect(self.on_other_combobox_changed)
-        self.comboBox_setter2.currentTextChanged.connect(self.on_other_combobox_changed)
-        self.comboBox_attacker.currentTextChanged.connect(self.on_other_combobox_changed)
-        self.comboBox_attack.currentTextChanged.connect(self.on_other_combobox_changed)
-        self.comboBox_position_W.currentTextChanged.connect(self.on_other_combobox_changed)
-        self.comboBox_position_X.currentTextChanged.connect(self.on_other_combobox_changed)
-        self.comboBox_position_X2.currentTextChanged.connect(self.on_other_combobox_changed)
-        self.comboBox_position_Y.currentTextChanged.connect(self.on_other_combobox_changed)
-        self.comboBox_position_Z.currentTextChanged.connect(self.on_other_combobox_changed)
+        self.comboBox_setter1.currentTextChanged.connect(
+            self.on_other_combobox_changed)
+        self.comboBox_setter2.currentTextChanged.connect(
+            self.on_other_combobox_changed)
+        self.comboBox_attacker.currentTextChanged.connect(
+            self.on_other_combobox_changed)
+        self.comboBox_attack.currentTextChanged.connect(
+            self.on_other_combobox_changed)
+        self.comboBox_position_W.currentTextChanged.connect(
+            self.on_other_combobox_changed)
+        self.comboBox_position_X.currentTextChanged.connect(
+            self.on_other_combobox_changed)
+        self.comboBox_position_X2.currentTextChanged.connect(
+            self.on_other_combobox_changed)
+        self.comboBox_position_Y.currentTextChanged.connect(
+            self.on_other_combobox_changed)
+        self.comboBox_position_Z.currentTextChanged.connect(
+            self.on_other_combobox_changed)
 
-
-        
     def enable_all_combobox(self):
         self.comboBox_setter1.setDisabled(False)
         self.comboBox_setter2.setDisabled(False)
@@ -152,7 +164,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.positionSlider.setRange(0, 100)
         self.positionSlider.setStyleSheet(style)
         self.positionSlider.sliderMoved.connect(self.setPosition)
-        
+
         self.video_layout.addWidget(self.video_widget)
 
         self.controlLayout = QHBoxLayout()
@@ -173,7 +185,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             self.show_video_names = [os.path.basename(
                 video_path) for video_path in self.video_paths]
-            
+
             with open(self.out_path, mode='r', newline='') as file:
                 reader = csv.DictReader(file)
                 rows = list(reader)
@@ -391,18 +403,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 break
 
         if not video_name_exists:
-            self.original_text_label.setText('Original Label : '+'NO Annotation')
+            self.original_text_label.setText(
+                'Original Label : '+'NO Annotation')
 
     def switch1_changed(self):
         if self.pushButton_switch1.text() == 'ON':
             self.pushButton_switch1.setText('OFF')
-            self.pushButton_switch1.setStyleSheet('background-color: rgb(253, 58, 116);')
+            self.pushButton_switch1.setStyleSheet(
+                'background-color: rgb(253, 58, 116);')
             self.comboBox_setter1.setDisabled(True)
             self.comboBox_position_W.setDisabled(True)
             self.comboBox_position_X.setDisabled(True)
         else:
             self.pushButton_switch1.setText('ON')
-            self.pushButton_switch1.setStyleSheet('background-color: rgb(58, 253, 149);')
+            self.pushButton_switch1.setStyleSheet(
+                'background-color: rgb(58, 253, 149);')
             self.comboBox_setter1.setDisabled(False)
             self.comboBox_position_W.setDisabled(False)
             self.comboBox_position_X.setDisabled(False)
@@ -410,13 +425,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def switch2_changed(self):
         if self.pushButton_switch2.text() == 'ON':
             self.pushButton_switch2.setText('OFF')
-            self.pushButton_switch2.setStyleSheet('background-color: rgb(253, 58, 116);')
+            self.pushButton_switch2.setStyleSheet(
+                'background-color: rgb(253, 58, 116);')
             self.comboBox_setter2.setDisabled(True)
             self.comboBox_position_X2.setDisabled(True)
             self.comboBox_position_Y.setDisabled(True)
         else:
             self.pushButton_switch2.setText('ON')
-            self.pushButton_switch2.setStyleSheet('background-color: rgb(58, 253, 149);')
+            self.pushButton_switch2.setStyleSheet(
+                'background-color: rgb(58, 253, 149);')
             self.comboBox_setter2.setDisabled(False)
             self.comboBox_position_X2.setDisabled(False)
             self.comboBox_position_Y.setDisabled(False)
@@ -424,13 +441,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def switch3_changed(self):
         if self.pushButton_switch3.text() == 'ON':
             self.pushButton_switch3.setText('OFF')
-            self.pushButton_switch3.setStyleSheet('background-color: rgb(253, 58, 116);')
+            self.pushButton_switch3.setStyleSheet(
+                'background-color: rgb(253, 58, 116);')
             self.comboBox_attacker.setDisabled(True)
             self.comboBox_position_Z.setDisabled(True)
             self.comboBox_attack.setDisabled(True)
         else:
             self.pushButton_switch3.setText('ON')
-            self.pushButton_switch3.setStyleSheet('background-color: rgb(58, 253, 149);')
+            self.pushButton_switch3.setStyleSheet(
+                'background-color: rgb(58, 253, 149);')
             self.comboBox_attacker.setDisabled(False)
             self.comboBox_position_Z.setDisabled(False)
             self.comboBox_attack.setDisabled(False)
@@ -444,8 +463,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.comboBox_state.addItems(['strategy', 'serving'])
         elif self.comboBox_score.currentText() == 'lose':
             self.comboBox_state.clear()
-            self.comboBox_state.addItems(['blocking', 'serving error', 'passing mistake', 'attack error'])
-
+            self.comboBox_state.addItems(
+                ['blocking', 'serving error', 'passing mistake', 'attack error'])
 
     def on_state_combobox_changed(self, text):
         self.enable_all_combobox()
@@ -453,8 +472,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if text == 'strategy':
             s_mix = ''
-            
-            s1 = f'The {self.comboBox_setter1.currentText()} receives the ball at {self.comboBox_position_W.currentText()} and passes the ball to {self.comboBox_position_X.currentText()}. ' 
+
+            s1 = f'The {self.comboBox_setter1.currentText()} receives the ball at {self.comboBox_position_W.currentText()} and passes the ball to {self.comboBox_position_X.currentText()}. '
 
             s2 = f'the {self.comboBox_setter2.currentText()} at {self.comboBox_position_X2.currentText()} sets the ball to {self.comboBox_position_Y.currentText()}, '
 
@@ -467,16 +486,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if self.pushButton_switch3.text() == 'ON':
                 s_mix += s3
             record_text = s_mix
-           
+
         elif text == 'serving':
             self.disable_all_combobox()
-            self.comboBox_position_W.setDisabled(False)
+            self.comboBox_position_X.setDisabled(False)
             record_text = f'The server serves the ball to the opponent’s {self.comboBox_position_X.currentText()}, and the oppoent dig outside.'
-            
+
         elif text == 'blocking':
             s_mix = ''
-            
-            s1 = f'The {self.comboBox_setter1.currentText()} receives the ball at {self.comboBox_position_W.currentText()} and passes the ball to {self.comboBox_position_X.currentText()}. ' 
+
+            s1 = f'The {self.comboBox_setter1.currentText()} receives the ball at {self.comboBox_position_W.currentText()} and passes the ball to {self.comboBox_position_X.currentText()}. '
 
             s2 = f'the {self.comboBox_setter2.currentText()} at {self.comboBox_position_X2.currentText()} sets the ball to {self.comboBox_position_Y.currentText()}, '
 
@@ -489,19 +508,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if self.pushButton_switch3.text() == 'ON':
                 s_mix += s3
             record_text = s_mix
-            
+
         elif text == 'serving error':
             self.disable_all_combobox()
             record_text = 'The server loses a point due to a serving error.'
-            
+
         elif text == 'passing mistake':
             self.comboBox_attacker.setDisabled(True)
             self.comboBox_position_Z.setDisabled(True)
             self.comboBox_attack.setDisabled(True)
 
             s_mix = ''
-            
-            s1 = f'The {self.comboBox_setter1.currentText()} receives the ball at {self.comboBox_position_W.currentText()} and passes the ball to {self.comboBox_position_X.currentText()}. ' 
+
+            s1 = f'The {self.comboBox_setter1.currentText()} receives the ball at {self.comboBox_position_W.currentText()} and passes the ball to {self.comboBox_position_X.currentText()}. '
 
             s2 = f'the {self.comboBox_setter2.currentText()} at {self.comboBox_position_X2.currentText()} sets the ball to {self.comboBox_position_Y.currentText()}, '
 
@@ -514,11 +533,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if self.pushButton_switch3.text() == 'ON':
                 s_mix += s3
             record_text = s_mix
-            
+
         elif text == 'attack error':
             s_mix = ''
-            
-            s1 = f'The {self.comboBox_setter1.currentText()} receives the ball at {self.comboBox_position_W.currentText()} and passes the ball to {self.comboBox_position_X.currentText()}. ' 
+
+            s1 = f'The {self.comboBox_setter1.currentText()} receives the ball at {self.comboBox_position_W.currentText()} and passes the ball to {self.comboBox_position_X.currentText()}. '
 
             s2 = f'the {self.comboBox_setter2.currentText()} at {self.comboBox_position_X2.currentText()} sets the ball to {self.comboBox_position_Y.currentText()}, '
 
@@ -531,9 +550,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if self.pushButton_switch3.text() == 'ON':
                 s_mix += s3
             record_text = s_mix
-            
+
         self.current_label = record_text
-        self.current_text_label.setText('Current label : ' + self.current_label)
+        self.current_text_label.setText(
+            'Current label : ' + self.current_label)
 
 
 if __name__ == '__main__':
