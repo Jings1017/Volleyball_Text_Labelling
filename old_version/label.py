@@ -92,55 +92,6 @@ class VolleyballLabel(QMainWindow):
         self.media_player.durationChanged.connect(self.durationChanged)
         self.media_player.error.connect(self.handleError)
 
-        font = QFont()
-        font.setPointSize(14)
-
-        self.select_layout = QVBoxLayout()
-        self.layout.addLayout(self.select_layout)
-        self.mode_text = QLabel('得失分')
-        self.mode_text.setFont(QFont('Arial', 12))
-        self.mode_text.setAlignment(QtCore.Qt.AlignCenter)
-        self.select_layout.addWidget(self.mode_text)
-
-        self.mode_combobox = QComboBox()
-        self.mode_combobox.setFixedSize(150, 50)
-        self.mode_combobox.setFont(font)
-        self.mode_combobox.addItems(
-            ['得分', '失分'])
-        self.mode_combobox.activated.connect(self.update_mode)
-        self.select_layout.addWidget(self.mode_combobox)
-
-        self.submode_text = QLabel('進攻手段')
-        self.submode_text.setFont(QFont('Arial', 12))
-        self.submode_text.setAlignment(QtCore.Qt.AlignCenter)
-        self.select_layout.addWidget(self.submode_text)
-
-        self.submode_combobox = QComboBox()
-        self.submode_combobox.setFixedSize(150, 50)
-        self.submode_combobox.setFont(font)
-        self.submode_combobox.addItems(
-            ['組織進攻', '發球進攻'])
-        self.submode_combobox.activated.connect(self.update_submode)
-        self.select_layout.addWidget(self.submode_combobox)
-
-        self.first_text_layout = QHBoxLayout()
-
-        self.first_player_layout = QVBoxLayout()
-        self.first_player_text = QLabel('一傳手')
-        self.first_player_text.setFont(QFont('Arial', 12))
-        self.first_player_text.setAlignment(QtCore.Qt.AlignCenter)
-        self.first_player_layout.addWidget(self.first_player_text)
-
-        self.first_player_combobox = QComboBox()
-        self.first_player_combobox.setFixedSize(150, 50)
-        self.first_player_combobox.setFont(font)
-        self.first_player_combobox.addItems(self.data['position'])
-        self.first_player_layout.addWidget(self.first_player_combobox)
-
-        self.select_layout.addLayout(self.first_player_layout)
-
-        # -----
-
         self.media_content = None
         self.folder_path = ''
         self.current_video_path = None
@@ -180,7 +131,7 @@ class VolleyballLabel(QMainWindow):
         self.video_title_label.setAlignment(QtCore.Qt.AlignCenter)
 
         self.video_widget = QVideoWidget()
-        self.video_widget.setFixedSize(1200, 650)
+        self.video_widget.setFixedSize(1450, 650)
         self.video_widget.setAttribute(Qt.WA_TranslucentBackground, True)
 
         self.media_player = QMediaPlayer()
@@ -491,12 +442,6 @@ class VolleyballLabel(QMainWindow):
             msg_box.exec()
 
         self.update_original_text()
-
-    def update_mode(self):
-        print(self.mode_combobox.currentText())
-
-    def update_submode(self):
-        print(self.submode_combobox.currentText())
 
     def update_annotation_text(self):
         text = ''
