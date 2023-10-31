@@ -84,7 +84,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def combobox_setting(self):
         self.comboBox_score.addItems(['score', 'lose'])
-        self.comboBox_state.addItems(['strategy', 'serving'])  # 組織進攻、發球進攻
+        self.comboBox_state.addItems(['strategy', 'serving'])
         self.comboBox_setter1.addItems(self.data['attacker'])
         self.comboBox_setter2.addItems(self.data['attacker'])
         self.comboBox_attacker.addItems(self.data['attacker'])
@@ -118,6 +118,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.on_other_combobox_changed)
         self.comboBox_position_Z.currentTextChanged.connect(
             self.on_other_combobox_changed)
+
+        self.comboBox_position_X.currentTextChanged.connect(
+            self.combobox_X_sync
+        )
+
+        self.comboBox_position_X2.currentTextChanged.connect(
+            self.combobox_X2_sync
+        )
 
     def enable_all_combobox(self):
         self.comboBox_setter1.setDisabled(False)
@@ -457,6 +465,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_other_combobox_changed(self, text):
         self.on_state_combobox_changed(self.comboBox_state.currentText())
 
+    def combobox_X_sync(self):
+        current_x_index = self.comboBox_position_X.currentIndex()
+        self.comboBox_position_X2.setCurrentIndex(current_x_index)
+
+    def combobox_X2_sync(self):
+        current_x_index = self.comboBox_position_X2.currentIndex()
+        self.comboBox_position_X.setCurrentIndex(current_x_index)
+
     def on_score_combobox_changed(self):
         if self.comboBox_score.currentText() == 'score':
             self.comboBox_state.clear()
@@ -469,6 +485,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_state_combobox_changed(self, text):
         self.enable_all_combobox()
         record_text = ''
+        # current_x_index = self.comboBox_position_X.currentIndex()
+        # print('the fucking current x index is ', current_x_index)
+        # self.comboBox_position_X2.setCurrentIndex(current_x_index)
 
         if text == 'strategy':
             s_mix = ''
